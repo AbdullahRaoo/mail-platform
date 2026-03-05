@@ -1,0 +1,63 @@
+# ============================================
+# Caddyfile — Master Reverse Proxy
+# ============================================
+# This runs on the HOST (not in Docker).
+# Install: sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+#          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+#          sudo apt update && sudo apt install caddy
+#
+# Before enabling Caddy:
+#   1. Stop the existing robionix_nginx container (it owns 80/443)
+#   2. sudo systemctl enable --now caddy
+#   3. Re-route robionix through Caddy as shown below
+
+# ─── MagicQC Webmail ─────────────────────────
+# The Next.js frontend
+mail.magicqc.com {
+	reverse_proxy localhost:13000
+}
+
+# ─── Stalwart JMAP API ───────────────────────
+# Used by the webmail for JMAP + auth
+jmap.magicqc.com {
+	reverse_proxy localhost:18080
+}
+
+# ─── Stalwart Admin Panel ────────────────────
+# Restrict to admin use only
+admin.magicqc.com {
+	reverse_proxy localhost:18080
+}
+
+# ─── MTA-STS Policy ─────────────────────────
+# Required for MTA-STS (mail transport security)
+mta-sts.magicqc.com {
+	header Content-Type text/plain
+	respond /\.well-known/mta-sts.txt "version: STSv1
+mode: enforce
+mx: mail.magicqc.com
+max_age: 604800
+"
+}
+
+# ─── Autoconfig / Autodiscover ───────────────
+# Thunderbird / Outlook autodiscovery
+autoconfig.magicqc.com {
+	reverse_proxy localhost:18080
+}
+
+# ─── MagicQC Main Site (Laravel) ─────────────
+magicqc.com, www.magicqc.com {
+	# If Laravel is running in Docker, proxy to its container port.
+	# If running on host via php-fpm, use php_fastcgi.
+	# Adjust the upstream below to match your setup.
+	reverse_proxy localhost:8000
+}
+
+# ─── Robionix (WordPress) ────────────────────
+# Previously owned ports 80/443 via robionix_nginx.
+# Now Caddy handles TLS and proxies to the WordPress container.
+robionix.com, www.robionix.com {
+	reverse_proxy localhost:8080
+}

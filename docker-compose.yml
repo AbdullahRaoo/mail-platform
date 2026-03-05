@@ -1,0 +1,69 @@
+services:
+  # ============================================
+  # Stalwart Mail Server (All-in-One)
+  # SMTP + IMAP + JMAP + Spam Filter + CalDAV +
+  # CardDAV + WebDAV + Admin UI — single binary
+  # ============================================
+  stalwart:
+    image: stalwartlabs/mail-server:latest
+    container_name: stalwart-mail
+    restart: unless-stopped
+    ports:
+      # Mail protocol ports (exposed to internet via UFW)
+      - "25:25"         # SMTP — receiving mail from other servers
+      - "465:465"       # SMTPS — submission with implicit TLS
+      - "587:587"       # SMTP Submission — STARTTLS
+      - "993:993"       # IMAPS — IMAP over TLS
+      - "4190:4190"     # ManageSieve — server-side mail filter management
+      # HTTP/JMAP — localhost only, accessed via Caddy reverse proxy
+      - "127.0.0.1:18080:8080"
+    volumes:
+      - stalwart-data:/opt/stalwart-mail
+    environment:
+      - STALWART_HOSTNAME=${MAIL_HOSTNAME:-mail.magicqc.com}
+    networks:
+      - mail-network
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    # Force IPv4 DNS — Docker IPv6 is broken on this VPS
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  # ============================================
+  # Custom Webmail Frontend (Next.js)
+  # Communicates with Stalwart via JMAP protocol
+  # ============================================
+  webmail:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: magicqc-webmail
+    restart: unless-stopped
+    ports:
+      # Localhost only — accessed via Caddy reverse proxy
+      - "127.0.0.1:13000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      stalwart:
+        condition: service_healthy
+    networks:
+      - mail-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+volumes:
+  stalwart-data:
+    driver: local
+
+networks:
+  mail-network:
+    driver: bridge

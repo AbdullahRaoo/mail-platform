@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--destructive);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-fg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f1729;
+  --primary: #2563eb;
+  --primary-fg: #ffffff;
+  --muted: #f1f5f9;
+  --muted-fg: #64748b;
+  --border: #e2e8f0;
+  --card: #ffffff;
+  --card-fg: #0f1729;
+  --accent: #f1f5f9;
+  --accent-fg: #0f1729;
+  --destructive: #ef4444;
+  --sidebar: #f8fafc;
+  --sidebar-fg: #334155;
+  --sidebar-border: #e2e8f0;
+  --ring: #2563eb;
+  --input: #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    --background: #0b1120;
+    --foreground: #e2e8f0;
+    --primary: #3b82f6;
+    --primary-fg: #ffffff;
+    --muted: #1e293b;
+    --muted-fg: #94a3b8;
+    --border: #1e293b;
+    --card: #0f1729;
+    --card-fg: #e2e8f0;
+    --accent: #1e293b;
+    --accent-fg: #e2e8f0;
+    --destructive: #ef4444;
+    --sidebar: #0f1729;
+    --sidebar-fg: #94a3b8;
+    --sidebar-border: #1e293b;
+    --ring: #3b82f6;
+    --input: #1e293b;
+  }
+}
+
+:root.dark {
+  --background: #0b1120;
+  --foreground: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-fg: #ffffff;
+  --muted: #1e293b;
+  --muted-fg: #94a3b8;
+  --border: #1e293b;
+  --card: #0f1729;
+  --card-fg: #e2e8f0;
+  --accent: #1e293b;
+  --accent-fg: #e2e8f0;
+  --destructive: #ef4444;
+  --sidebar: #0f1729;
+  --sidebar-fg: #94a3b8;
+  --sidebar-border: #1e293b;
+  --ring: #3b82f6;
+  --input: #1e293b;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted-fg);
+  border-radius: 999px;
+  opacity: 0.3;
+}
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.5;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Email HTML content sandbox */
+.email-html-content img {
+  max-width: 100%;
+  height: auto;
+}
+.email-html-content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.email-html-content blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  margin-left: 0;
+  color: var(--muted-fg);
+}
