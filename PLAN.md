@@ -1,7 +1,7 @@
 # MagicQC Enterprise Mail Platform — Master Plan
 
 > **Project**: Self-hosted enterprise email platform for MagicQC employees  
-> **Domain**: `mail.magicqc.com` (webmail + admin) / `magicqc.com` (email addresses)  
+> **Domain**: `mail.magicqc.online` (webmail + admin) / `magicqc.online` (email addresses)  
 > **Date**: March 5, 2026  
 
 ---
@@ -23,8 +23,8 @@ Before anything else — here is exactly what's already running on the target se
 | **CPU Note** | Does NOT support `x86-64-v2` (reason MySQL 8 can't run — use MySQL 5.7) |
 | **Firewall (UFW)** | Ports `222` (SSH), `80` (HTTP), `443` (HTTPS) — **everything else is blocked** |
 | **Docker IPv6** | **Broken** — must force IPv4 for all network ops |
-| **DNS Provider** | Cloudflare (for robionix.com; magicqc.com DNS managed at Namecheap or Cloudflare) |
-| **Domain Registrars** | **robionix.com** → GoDaddy / **magicqc.com** → Namecheap |
+| **DNS Provider** | Cloudflare (for robionix.com; magicqc.online DNS managed at Namecheap or Cloudflare) |
+| **Domain Registrars** | **robionix.com** → GoDaddy / **magicqc.online** → Namecheap |
 
 ### Existing Stack #1 — Robionix (WordPress)
 | Detail | Value |
@@ -43,7 +43,7 @@ Before anything else — here is exactly what's already running on the target se
 | Note | MagicQC web traffic goes: Internet → Robionix Nginx (:443) → reverse proxy → MagicQC Nginx (:8081) |
 
 ### Critical Implication
-The **Robionix Nginx container** (`robionix_nginx`) is the **master reverse proxy** that owns ports 80/443. Any new subdomain (like `mail.magicqc.com`) must be added as a new `server {}` block inside that Nginx config at `/wp/robionix/nginx/conf.d/`. Alternatively, we migrate to a dedicated host-level reverse proxy (Caddy or Nginx).
+The **Robionix Nginx container** (`robionix_nginx`) is the **master reverse proxy** that owns ports 80/443. Any new subdomain (like `mail.magicqc.online`) must be added as a new `server {}` block inside that Nginx config at `/wp/robionix/nginx/conf.d/`. Alternatively, we migrate to a dedicated host-level reverse proxy (Caddy or Nginx).
 
 ---
 
@@ -70,10 +70,10 @@ The **Robionix Nginx container** (`robionix_nginx`) is the **master reverse prox
 
 ## 1. Executive Summary
 
-We are building a **self-hosted, enterprise-grade email platform** for MagicQC (`magicqc.com`) employees, deployed on the existing VPS (`121.52.149.158`) alongside the Robionix WordPress site and the MagicQC Laravel app. The platform will provide:
+We are building a **self-hosted, enterprise-grade email platform** for MagicQC (`magicqc.online`) employees, deployed on the existing VPS (`121.52.149.158`) alongside the Robionix WordPress site and the MagicQC Laravel app. The platform will provide:
 
-- **Professional email** — `employee@magicqc.com` addresses
-- **Modern webmail** — Beautiful, fast, responsive web interface at `mail.magicqc.com`
+- **Professional email** — `employee@magicqc.online` addresses
+- **Modern webmail** — Beautiful, fast, responsive web interface at `mail.magicqc.online`
 - **Admin dashboard** — Domain/user/alias management
 - **Calendar & Contacts** — Built-in collaboration (CalDAV/CardDAV)
 - **Mobile support** — IMAP/SMTP for native clients + ActiveSync-like via JMAP
@@ -134,10 +134,10 @@ After extensive research comparing **Mailcow**, **Mailu**, **custom Postfix+Dove
           │  │  Ports: 80, 443 (takes over from robionix_nginx)            │   │
           │  │                                                              │   │
           │  │  robionix.com      → robionix_wordpress :8080               │   │
-          │  │  magicqc.com       → magicqc_nginx :8081                    │   │
-          │  │  mail.magicqc.com  → webmail :3000 (Next.js)               │   │
-          │  │  mail.magicqc.com/jmap/* → stalwart :8080 (JMAP API)       │   │
-          │  │  admin.magicqc.com → stalwart :8080 (Admin UI)             │   │
+          │  │  magicqc.online       → magicqc_nginx :8081                    │   │
+          │  │  mail.magicqc.online  → webmail :3000 (Next.js)               │   │
+          │  │  mail.magicqc.online/jmap/* → stalwart :8080 (JMAP API)       │   │
+          │  │  admin.magicqc.online → stalwart :8080 (Admin UI)             │   │
           │  │  autoconfig.*      → stalwart :8080                         │   │
           │  │  mta-sts.*         → static MTA-STS policy                  │   │
           │  │  Auto-HTTPS via ACME (Let's Encrypt) for ALL domains        │   │
@@ -160,7 +160,7 @@ Port 465 ─▶  │  Path: /home/nutechadmin/mail-platform/                    
 Port 587 ─▶  │                                                              │  │
 Port 993 ─▶  │  ┌──────────────────────┐  ┌───────────────────────────┐    │  │
 Port 4190 ▶  │  │  Stalwart Mail Server│  │  Next.js Webmail          │    │  │
-          │  │  │  (single container)  │  │  (mail.magicqc.com)       │    │  │
+          │  │  │  (single container)  │  │  (mail.magicqc.online)       │    │  │
           │  │  │  :25, :465, :587     │  │  :3000 (internal only)    │    │  │
           │  │  │  :993, :4190         │  │                           │    │  │
           │  │  │  :8080 (HTTP/JMAP)   │  │  Talks to Stalwart via   │    │  │
@@ -191,27 +191,27 @@ Currently, `robionix_nginx` (a container) owns ports 80/443 and reverse-proxies 
 - Stalwart HTTP stays on `:8080` on a different Docker network
 - Webmail stays on `:3000` (internal only)
 
-**Alternative (less disruption)**: Keep `robionix_nginx` on :80/:443 and add `server {}` blocks for `mail.magicqc.com`, `admin.magicqc.com`, etc. This avoids restructuring but is harder to maintain long-term.
+**Alternative (less disruption)**: Keep `robionix_nginx` on :80/:443 and add `server {}` blocks for `mail.magicqc.online`, `admin.magicqc.online`, etc. This avoids restructuring but is harder to maintain long-term.
 
 ### Domain & URL Structure
 
 | URL | Purpose |
 |-----|---------|
-| `mail.magicqc.com` | Modern Webmail UI (Next.js custom frontend) |
-| `admin.magicqc.com` | Stalwart's built-in admin panel (or route under mail.) |
-| `autoconfig.magicqc.com` | Auto-configuration for email clients (Thunderbird etc.) |
-| `autodiscover.magicqc.com` | Auto-discovery for Outlook clients |
-| `mta-sts.magicqc.com` | MTA-STS policy hosting |
+| `mail.magicqc.online` | Modern Webmail UI (Next.js custom frontend) |
+| `admin.magicqc.online` | Stalwart's built-in admin panel (or route under mail.) |
+| `autoconfig.magicqc.online` | Auto-configuration for email clients (Thunderbird etc.) |
+| `autodiscover.magicqc.online` | Auto-discovery for Outlook clients |
+| `mta-sts.magicqc.online` | MTA-STS policy hosting |
 
 ### Email Addresses
 
 | Address | Purpose |
 |---------|---------|
-| `admin@magicqc.com` | System administrator |
-| `info@magicqc.com` | General inquiries |
-| `support@magicqc.com` | Customer support |
-| `firstname@magicqc.com` | Employee personal mailboxes |
-| `noreply@magicqc.com` | Outbound-only system notifications |
+| `admin@magicqc.online` | System administrator |
+| `info@magicqc.online` | General inquiries |
+| `support@magicqc.online` | Customer support |
+| `firstname@magicqc.online` | Employee personal mailboxes |
+| `noreply@magicqc.online` | Outbound-only system notifications |
 
 ---
 
@@ -311,7 +311,7 @@ The webmail UI talks to Stalwart via the **JMAP protocol** — a modern, JSON-ba
 
 ### 4.3 Admin Dashboard
 
-Stalwart includes a built-in web admin panel. We'll use it directly (at `admin.magicqc.com` or behind authentication) for:
+Stalwart includes a built-in web admin panel. We'll use it directly (at `admin.magicqc.online` or behind authentication) for:
 
 - Creating/managing domains
 - Creating/managing mailboxes
@@ -330,47 +330,47 @@ This is **THE most critical section**. Poor DNS setup = emails go to spam. Every
 
 ### 5.1 Required DNS Records
 
-All records below must be set on `magicqc.com`'s DNS management (your domain registrar or DNS provider):
+All records below must be set on `magicqc.online`'s DNS management (your domain registrar or DNS provider):
 
 #### A) MX Record (Mail Exchange)
 ```
-magicqc.com.    IN  MX  10  mail.magicqc.com.
+magicqc.online.    IN  MX  10  mail.magicqc.online.
 ```
 
 #### B) A Record for Mail Server
 ```
-mail.magicqc.com.    IN  A    <YOUR_VPS_IPv4>
+mail.magicqc.online.    IN  A    <YOUR_VPS_IPv4>
 ```
 
 #### C) AAAA Record (if VPS has IPv6)
 ```
-mail.magicqc.com.    IN  AAAA  <YOUR_VPS_IPv6>
+mail.magicqc.online.    IN  AAAA  <YOUR_VPS_IPv6>
 ```
 
 #### D) PTR Record (Reverse DNS) — CRITICAL
 > **Set via your VPS provider's control panel (not DNS)**
 ```
-<YOUR_VPS_IPv4>  →  mail.magicqc.com
+<YOUR_VPS_IPv4>  →  mail.magicqc.online
 ```
 This MUST resolve. Many mail servers reject mail from IPs without matching PTR records.
 
 #### E) SPF Record (Sender Policy Framework)
 ```
-magicqc.com.    IN  TXT  "v=spf1 mx a:mail.magicqc.com -all"
+magicqc.online.    IN  TXT  "v=spf1 mx a:mail.magicqc.online -all"
 ```
 - `mx` — Allow the MX server to send
-- `a:mail.magicqc.com` — Allow the mail server IP
+- `a:mail.magicqc.online` — Allow the mail server IP
 - `-all` — Hard fail for everything else (strict, recommended for new domains)
 
 #### F) DKIM Record (DomainKeys Identified Mail)
 ```
-<selector>._domainkey.magicqc.com.  IN  TXT  "v=DKIM1; k=rsa; p=<PUBLIC_KEY_BASE64>"
+<selector>._domainkey.magicqc.online.  IN  TXT  "v=DKIM1; k=rsa; p=<PUBLIC_KEY_BASE64>"
 ```
 Stalwart will generate the DKIM key pair. You copy the public key into DNS. Use a selector like `stalwart` or `2026`.
 
 #### G) DMARC Record
 ```
-_dmarc.magicqc.com.  IN  TXT  "v=DMARC1; p=quarantine; sp=quarantine; rua=mailto:dmarc-reports@magicqc.com; ruf=mailto:dmarc-forensic@magicqc.com; adkim=s; aspf=s; pct=100; fo=1"
+_dmarc.magicqc.online.  IN  TXT  "v=DMARC1; p=quarantine; sp=quarantine; rua=mailto:dmarc-reports@magicqc.online; ruf=mailto:dmarc-forensic@magicqc.online; adkim=s; aspf=s; pct=100; fo=1"
 ```
 - `p=quarantine` — Start with quarantine, move to `reject` after confidence builds
 - `adkim=s; aspf=s` — Strict alignment
@@ -380,44 +380,44 @@ _dmarc.magicqc.com.  IN  TXT  "v=DMARC1; p=quarantine; sp=quarantine; rua=mailto
 
 #### H) DANE / TLSA Record
 ```
-_25._tcp.mail.magicqc.com.  IN  TLSA  3 1 1 <SHA256_OF_CERT>
+_25._tcp.mail.magicqc.online.  IN  TLSA  3 1 1 <SHA256_OF_CERT>
 ```
 Proves your TLS certificate is authentic. Prevents man-in-the-middle.
 
 #### I) MTA-STS Record
 ```
-_mta-sts.magicqc.com.  IN  TXT  "v=STSv1; id=20260305"
+_mta-sts.magicqc.online.  IN  TXT  "v=STSv1; id=20260305"
 ```
-And host the policy at `https://mta-sts.magicqc.com/.well-known/mta-sts.txt`:
+And host the policy at `https://mta-sts.magicqc.online/.well-known/mta-sts.txt`:
 ```
 version: STSv1
 mode: enforce
-mx: mail.magicqc.com
+mx: mail.magicqc.online
 max_age: 604800
 ```
 
 #### J) TLS-RPT Record (TLS Reporting)
 ```
-_smtp._tls.magicqc.com.  IN  TXT  "v=TLSRPTv1; rua=mailto:tls-reports@magicqc.com"
+_smtp._tls.magicqc.online.  IN  TXT  "v=TLSRPTv1; rua=mailto:tls-reports@magicqc.online"
 ```
 
 #### K) Autoconfig/Autodiscover Records
 ```
-autoconfig.magicqc.com.    IN  CNAME  mail.magicqc.com.
-autodiscover.magicqc.com.  IN  CNAME  mail.magicqc.com.
+autoconfig.magicqc.online.    IN  CNAME  mail.magicqc.online.
+autodiscover.magicqc.online.  IN  CNAME  mail.magicqc.online.
 
 ; SRV records for automatic client configuration
-_submission._tcp.magicqc.com.  IN  SRV  0 1 587  mail.magicqc.com.
-_imaps._tcp.magicqc.com.       IN  SRV  0 1 993  mail.magicqc.com.
-_pop3s._tcp.magicqc.com.       IN  SRV  0 1 995  mail.magicqc.com.
-_jmap._tcp.magicqc.com.        IN  SRV  0 1 443  mail.magicqc.com.
+_submission._tcp.magicqc.online.  IN  SRV  0 1 587  mail.magicqc.online.
+_imaps._tcp.magicqc.online.       IN  SRV  0 1 993  mail.magicqc.online.
+_pop3s._tcp.magicqc.online.       IN  SRV  0 1 995  mail.magicqc.online.
+_jmap._tcp.magicqc.online.        IN  SRV  0 1 443  mail.magicqc.online.
 ```
 
 ### 5.2 DNS Checklist
 
-- [ ] MX record pointing to `mail.magicqc.com`
-- [ ] A record for `mail.magicqc.com` → VPS IP
-- [ ] PTR (rDNS) on VPS IP → `mail.magicqc.com`
+- [ ] MX record pointing to `mail.magicqc.online`
+- [ ] A record for `mail.magicqc.online` → VPS IP
+- [ ] PTR (rDNS) on VPS IP → `mail.magicqc.online`
 - [ ] SPF TXT record with `-all`
 - [ ] DKIM TXT record with public key
 - [ ] DMARC TXT record with reporting
@@ -522,7 +522,7 @@ Stalwart's built-in spam filter provides multiple layers:
 | Mechanism | Purpose |
 |-----------|---------|
 | **DKIM Signing** | Cryptographically sign all outgoing mail |
-| **SPF Authorization** | DNS declares only our server sends for magicqc.com |
+| **SPF Authorization** | DNS declares only our server sends for magicqc.online |
 | **DMARC Alignment** | From domain matches SPF/DKIM domain |
 | **ARC Signing** | For forwarded mail chain of custody |
 | **Rate Limiting** | Prevent compromised accounts from mass-spamming |
@@ -666,11 +666,11 @@ The frontend communicates with Stalwart via JMAP. Example flow:
 
 ```typescript
 // 1. Session discovery
-GET https://mail.magicqc.com/.well-known/jmap
+GET https://mail.magicqc.online/.well-known/jmap
 → Returns JMAP session with capabilities, API URL, upload/download URLs
 
 // 2. Get mailboxes (folders)
-POST https://mail.magicqc.com/jmap
+POST https://mail.magicqc.online/jmap
 {
   "using": ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:mail"],
   "methodCalls": [
@@ -679,7 +679,7 @@ POST https://mail.magicqc.com/jmap
 }
 
 // 3. Get emails in inbox
-POST https://mail.magicqc.com/jmap
+POST https://mail.magicqc.online/jmap
 {
   "methodCalls": [
     ["Email/query", { 
@@ -697,7 +697,7 @@ POST https://mail.magicqc.com/jmap
 }
 
 // 4. Real-time push (new mail notifications)
-EventSource: https://mail.magicqc.com/jmap/eventsource?types=*&closeafter=state&ping=30
+EventSource: https://mail.magicqc.online/jmap/eventsource?types=*&closeafter=state&ping=30
 ```
 
 ---
@@ -746,7 +746,7 @@ services:
     volumes:
       - ./stalwart-data:/opt/stalwart-mail
     environment:
-      - STALWART_HOSTNAME=mail.magicqc.com
+      - STALWART_HOSTNAME=mail.magicqc.online
     networks:
       - mail-network
     healthcheck:
@@ -773,7 +773,7 @@ services:
       - "3000"
     environment:
       - JMAP_URL=http://stalwart:8080
-      - NEXT_PUBLIC_JMAP_URL=https://mail.magicqc.com
+      - NEXT_PUBLIC_JMAP_URL=https://mail.magicqc.online
       - NODE_ENV=production
     depends_on:
       stalwart:
@@ -816,13 +816,13 @@ robionix.com, www.robionix.com {
 }
 
 # ─── MagicQC Laravel App ──────────────────────────────
-magicqc.com, www.magicqc.com {
+magicqc.online, www.magicqc.online {
     reverse_proxy localhost:8081
     # 8081 = magicqc_nginx (already on this port)
 }
 
 # ─── Webmail Frontend + JMAP API ──────────────────────
-mail.magicqc.com {
+mail.magicqc.online {
     # JMAP / CalDAV / CardDAV / Auth / Well-Known → Stalwart
     handle /jmap/* {
         reverse_proxy localhost:18080
@@ -859,25 +859,25 @@ mail.magicqc.com {
 }
 
 # ─── Stalwart Admin Panel ─────────────────────────────
-admin.magicqc.com {
+admin.magicqc.online {
     reverse_proxy localhost:18080
 }
 
 # ─── Autoconfig / Autodiscover ────────────────────────
-autoconfig.magicqc.com {
+autoconfig.magicqc.online {
     reverse_proxy localhost:18080
 }
-autodiscover.magicqc.com {
+autodiscover.magicqc.online {
     reverse_proxy localhost:18080
 }
 
 # ─── MTA-STS Policy ──────────────────────────────────
-mta-sts.magicqc.com {
+mta-sts.magicqc.online {
     header Content-Type "text/plain; charset=utf-8"
     respond /.well-known/mta-sts.txt 200 {
         body "version: STSv1
 mode: enforce
-mx: mail.magicqc.com
+mx: mail.magicqc.online
 max_age: 604800"
     }
 }
@@ -896,7 +896,7 @@ Add new `server {}` blocks to `/wp/robionix/nginx/conf.d/` and obtain additional
 
 This is simpler but messier long-term. We'd need to:
 - Mount the Stalwart/webmail Docker network so robionix_nginx can reach them
-- Manually manage SSL certs for `mail.magicqc.com`, `admin.magicqc.com`
+- Manually manage SSL certs for `mail.magicqc.online`, `admin.magicqc.online`
 - All config lives inside the robionix WordPress directory (semantically wrong)
 
 **Not recommended** unless you want zero changes to the existing setup.
@@ -929,7 +929,7 @@ Binding to `127.0.0.1` ensures these ports are NOT accessible from the internet 
 
 ## 10. VPS Coexistence Strategy
 
-Your VPS already hosts `robionix.com` and `magicqc.com`. Here's how to add the mail platform without disrupting existing services:
+Your VPS already hosts `robionix.com` and `magicqc.online`. Here's how to add the mail platform without disrupting existing services:
 
 ### 10.1 Port Conflict Avoidance
 
@@ -945,7 +945,7 @@ Your VPS already hosts `robionix.com` and `magicqc.com`. Here's how to add the m
 
 ### 10.2 Integration with Existing Reverse Proxy
 
-**If you're using Nginx**, add new server blocks for `mail.magicqc.com`, `admin.magicqc.com`, etc. 
+**If you're using Nginx**, add new server blocks for `mail.magicqc.online`, `admin.magicqc.online`, etc. 
 
 **If you're using Caddy**, add new site blocks as shown above.
 
@@ -1139,7 +1139,7 @@ Test every configuration change with:
 - [ ] Set up automatic Bayesian training (ham/spam folders)
 
 ### Phase 4: Webmail Frontend (Days 4-14)
-> **Goal**: Beautiful, functional webmail at mail.magicqc.com
+> **Goal**: Beautiful, functional webmail at mail.magicqc.online
 
 - [ ] Initialize Next.js project with shadcn/ui
 - [ ] Implement JMAP client library
@@ -1217,7 +1217,7 @@ This VPS can comfortably handle the mail platform with years of email storage an
 | Item | Cost |
 |------|------|
 | Stalwart Community Edition | **FREE** (open source) |
-| Domain (magicqc.com) | Already owned |
+| Domain (magicqc.online) | Already owned |
 | VPS | Already running |
 | SSL Certificates | **FREE** (Let's Encrypt via ACME) |
 | DNS hosting | Usually free with registrar |
@@ -1260,4 +1260,4 @@ This plan delivers an enterprise-grade, self-hosted email platform using:
 **Estimated cost**: ~$1-4/month (backup storage only — VPS already paid for, vs $60-70/month for Google/Microsoft for 10 users)  
 **VPS resources**: 15 GB RAM, 4 vCPU, 554 GB disk — mail platform uses ~4% of available RAM  
 
-The platform will be accessible at **`mail.magicqc.com`** with email addresses like **`name@magicqc.com`**.
+The platform will be accessible at **`mail.magicqc.online`** with email addresses like **`name@magicqc.online`**.

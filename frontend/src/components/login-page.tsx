@@ -58,7 +58,7 @@ export function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@magicqc.com"
+              placeholder="you@magicqc.online"
               autoComplete="email"
               required
               disabled={isLoading}

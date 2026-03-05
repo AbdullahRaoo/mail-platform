@@ -3,13 +3,13 @@
 # setup-dns.sh — Print required DNS records
 # ============================================
 # Run this to see all DNS records you need to add.
-# magicqc.com → Namecheap
+# magicqc.online → Namecheap
 # robionix.com → GoDaddy (via Cloudflare)
 
 set -euo pipefail
 
 VPS_IP="121.52.149.158"
-DOMAIN="magicqc.com"
+DOMAIN="magicqc.online"
 
 cat <<EOF
 ╔══════════════════════════════════════════════════════════════╗

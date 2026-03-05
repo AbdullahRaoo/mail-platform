@@ -19,10 +19,10 @@ Internet
   └── :443 (HTTPS)
         │
         Caddy (host)
-        ├── mail.magicqc.com   → localhost:13000 (Next.js webmail)
-        ├── jmap.magicqc.com   → localhost:18080 (Stalwart JMAP)
-        ├── admin.magicqc.com  → localhost:18080 (Stalwart admin)
-        ├── magicqc.com        → localhost:8000  (Laravel app)
+        ├── mail.magicqc.online   → localhost:13000 (Next.js webmail)
+        ├── jmap.magicqc.online   → localhost:18080 (Stalwart JMAP)
+        ├── admin.magicqc.online  → localhost:18080 (Stalwart admin)
+        ├── magicqc.online        → localhost:8000  (Laravel app)
         └── robionix.com       → localhost:8080  (WordPress)
 ```
 
@@ -31,7 +31,7 @@ Internet
 ### Prerequisites
 
 - VPS: Ubuntu 24.04, Docker + Docker Compose v2
-- DNS: magicqc.com records pointing to `121.52.149.158`
+- DNS: magicqc.online records pointing to `121.52.149.158`
 
 ### 1. First-time Server Setup
 
@@ -58,9 +58,9 @@ nano .env
 ```
 
 Required variables:
-- `MAIL_HOSTNAME=mail.magicqc.com`
-- `MAIL_DOMAIN=magicqc.com`
-- `NEXT_PUBLIC_JMAP_URL=https://jmap.magicqc.com`
+- `MAIL_HOSTNAME=mail.magicqc.online`
+- `MAIL_DOMAIN=magicqc.online`
+- `NEXT_PUBLIC_JMAP_URL=https://jmap.magicqc.online`
 - `STALWART_ADMIN_PASSWORD=<strong-password>`
 
 ### 4. Deploy
@@ -71,11 +71,11 @@ Required variables:
 
 ### 5. Post-Deploy: Create First Admin
 
-Open `https://admin.magicqc.com` and log in with:
+Open `https://admin.magicqc.online` and log in with:
 - Username: `admin`
 - Password: value from `STALWART_ADMIN_PASSWORD`
 
-Then create employee accounts (e.g. `abdullah@magicqc.com`).
+Then create employee accounts (e.g. `abdullah@magicqc.online`).
 
 ## Development
 

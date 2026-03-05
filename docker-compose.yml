@@ -20,7 +20,7 @@ services:
     volumes:
       - ./stalwart-data:/opt/stalwart-mail
     environment:
-      - STALWART_HOSTNAME=${MAIL_HOSTNAME:-mail.magicqc.com}
+      - STALWART_HOSTNAME=${MAIL_HOSTNAME:-mail.magicqc.online}
     networks:
       - mail-network
     healthcheck:
@@ -43,7 +43,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_JMAP_URL=${NEXT_PUBLIC_JMAP_URL:-https://mail.magicqc.com}
+        - NEXT_PUBLIC_JMAP_URL=${NEXT_PUBLIC_JMAP_URL:-https://mail.magicqc.online}
     container_name: magicqc-webmail
     restart: unless-stopped
     ports:
