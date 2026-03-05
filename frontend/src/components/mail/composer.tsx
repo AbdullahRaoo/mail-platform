@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useMail } from "@/context/mail-context";
+import type { ComposeMode } from "@/context/mail-context";
 import { Button, Input, Spinner } from "@/components/ui";
-import { sendEmail, displayName } from "@/lib/jmap/email";
+import { sendEmail, displayName, formatAddressList } from "@/lib/jmap/email";
 import { getPrimaryIdentity } from "@/lib/jmap/identity";
 import type { EmailAddress, ComposeEmail, Identity } from "@/lib/jmap/types";
 import { X, Minus, Send, Paperclip } from "lucide-react";
@@ -14,6 +15,8 @@ export function Composer() {
   const {
     isComposing,
     setIsComposing,
+    composeMode,
+    setComposeMode,
     replyTo,
     setReplyTo,
     activeMailboxId,
@@ -38,12 +41,36 @@ export function Composer() {
     getPrimaryIdentity().then(setIdentity).catch(console.error);
   }, []);
 
-  // Pre-fill for reply
+  // Pre-fill based on compose mode
   useEffect(() => {
-    if (replyTo) {
+    if (!replyTo) return;
+
+    if (composeMode === "reply") {
+      // Reply: set To to original sender
       const sender = replyTo.from?.[0];
-      if (sender) {
-        setTo(sender.email);
+      if (sender) setTo(sender.email);
+      setSubject(
+        replyTo.subject?.startsWith("Re:")
+          ? replyTo.subject
+          : `Re: ${replyTo.subject || ""}`
+      );
+      const quotedText = `\n\n--- On ${replyTo.sentAt || replyTo.receivedAt}, ${displayName(sender)} wrote ---\n${replyTo.preview || ""}`;
+      setBody(quotedText);
+    } else if (composeMode === "reply-all") {
+      // Reply All: set To to sender + all original To (except self), Cc to original Cc
+      const sender = replyTo.from?.[0];
+      const myEmail = identity?.email;
+      const allTo = [
+        ...(replyTo.from || []),
+        ...(replyTo.to || []),
+      ].filter((addr) => addr.email !== myEmail);
+      setTo(allTo.map((a) => a.email).join(", "));
+      const originalCc = (replyTo.cc || []).filter(
+        (addr) => addr.email !== myEmail
+      );
+      if (originalCc.length > 0) {
+        setCc(originalCc.map((a) => a.email).join(", "));
+        setShowCcBcc(true);
       }
       setSubject(
         replyTo.subject?.startsWith("Re:")
@@ -52,8 +79,29 @@ export function Composer() {
       );
       const quotedText = `\n\n--- On ${replyTo.sentAt || replyTo.receivedAt}, ${displayName(sender)} wrote ---\n${replyTo.preview || ""}`;
       setBody(quotedText);
+    } else if (composeMode === "forward") {
+      // Forward: clear To, set subject Fwd:, include original message
+      setTo("");
+      setSubject(
+        replyTo.subject?.startsWith("Fwd:")
+          ? replyTo.subject
+          : `Fwd: ${replyTo.subject || ""}`
+      );
+      const fwdHeader = [
+        `---------- Forwarded message ----------`,
+        `From: ${formatAddressList(replyTo.from)}`,
+        `Date: ${replyTo.sentAt || replyTo.receivedAt}`,
+        `Subject: ${replyTo.subject || ""}`,
+        `To: ${formatAddressList(replyTo.to)}`,
+        replyTo.cc?.length ? `Cc: ${formatAddressList(replyTo.cc)}` : "",
+        "",
+        replyTo.preview || "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      setBody(`\n\n${fwdHeader}`);
     }
-  }, [replyTo]);
+  }, [replyTo, composeMode, identity]);
 
   const reset = useCallback(() => {
     setTo("");
@@ -64,8 +112,9 @@ export function Composer() {
     setShowCcBcc(false);
     setAttachments([]);
     setReplyTo(null);
+    setComposeMode("new");
     setMinimized(false);
-  }, [setReplyTo]);
+  }, [setReplyTo, setComposeMode]);
 
   const handleClose = () => {
     reset();
@@ -84,6 +133,7 @@ export function Composer() {
     if (!to.trim() || !identity) return;
     setSending(true);
     try {
+      const isReply = composeMode === "reply" || composeMode === "reply-all";
       const compose: ComposeEmail = {
         identityId: identity.id,
         to: parseAddresses(to),
@@ -91,8 +141,8 @@ export function Composer() {
         bcc: parseAddresses(bcc),
         subject,
         textBody: body,
-        inReplyTo: replyTo?.messageId?.[0] || null,
-        references: replyTo?.references || null,
+        inReplyTo: isReply ? (replyTo?.messageId?.[0] || null) : null,
+        references: isReply ? (replyTo?.references || null) : null,
         attachments: attachments.length > 0 ? attachments : undefined,
       };
       await sendEmail(compose);
@@ -153,7 +203,13 @@ export function Composer() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-muted rounded-t-xl border-b border-border">
         <span className="text-sm font-medium">
-          {replyTo ? "Reply" : "New Message"}
+          {composeMode === "reply"
+            ? "Reply"
+            : composeMode === "reply-all"
+              ? "Reply All"
+              : composeMode === "forward"
+                ? "Forward"
+                : "New Message"}
         </span>
         <div className="flex items-center gap-1">
           <Button

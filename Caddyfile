@@ -12,14 +12,66 @@
 #   2. sudo systemctl enable --now caddy
 #   3. Re-route robionix through Caddy as shown below
 
-# ─── MagicQC Webmail ─────────────────────────
-# The Next.js frontend
+# ─── MagicQC Webmail + JMAP API ──────────────
+# mail.magicqc.com serves both the Next.js webmail
+# and the Stalwart JMAP/auth/upload/download/DAV APIs.
+# JMAP-related paths go to Stalwart; everything else to webmail.
 mail.magicqc.com {
-	reverse_proxy localhost:13000
+	# JMAP session discovery
+	handle /.well-known/jmap {
+		reverse_proxy localhost:18080
+	}
+
+	# JMAP API endpoint
+	handle /jmap* {
+		reverse_proxy localhost:18080
+	}
+
+	# Authentication endpoints
+	handle /auth/* {
+		reverse_proxy localhost:18080
+	}
+	handle /api/* {
+		reverse_proxy localhost:18080
+	}
+
+	# Blob upload / download
+	handle /upload/* {
+		reverse_proxy localhost:18080
+	}
+	handle /download/* {
+		reverse_proxy localhost:18080
+	}
+
+	# EventSource (push notifications)
+	handle /eventsource* {
+		reverse_proxy localhost:18080
+	}
+
+	# CalDAV / CardDAV / WebDAV
+	handle /dav/* {
+		reverse_proxy localhost:18080
+	}
+	handle /.well-known/caldav {
+		reverse_proxy localhost:18080
+	}
+	handle /.well-known/carddav {
+		reverse_proxy localhost:18080
+	}
+
+	# Autoconfig for desktop clients
+	handle /mail/config-v1.1.xml {
+		reverse_proxy localhost:18080
+	}
+
+	# Everything else → Next.js webmail
+	handle {
+		reverse_proxy localhost:13000
+	}
 }
 
-# ─── Stalwart JMAP API ───────────────────────
-# Used by the webmail for JMAP + auth
+# ─── Stalwart JMAP API (dedicated subdomain) ─
+# Alternative direct access for API clients
 jmap.magicqc.com {
 	reverse_proxy localhost:18080
 }
@@ -46,13 +98,14 @@ max_age: 604800
 autoconfig.magicqc.com {
 	reverse_proxy localhost:18080
 }
+autodiscover.magicqc.com {
+	reverse_proxy localhost:18080
+}
 
 # ─── MagicQC Main Site (Laravel) ─────────────
 magicqc.com, www.magicqc.com {
-	# If Laravel is running in Docker, proxy to its container port.
-	# If running on host via php-fpm, use php_fastcgi.
-	# Adjust the upstream below to match your setup.
-	reverse_proxy localhost:8000
+	# Laravel runs in Docker via magicqc_nginx on port 8081
+	reverse_proxy localhost:8081
 }
 
 # ─── Robionix (WordPress) ────────────────────

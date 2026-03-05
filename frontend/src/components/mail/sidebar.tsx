@@ -23,6 +23,7 @@ export function Sidebar() {
     activeMailboxId,
     setActiveMailboxId,
     setIsComposing,
+    setComposeMode,
   } = useMail();
 
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>(
@@ -54,7 +55,10 @@ export function Sidebar() {
         <Button
           variant="primary"
           className="w-full"
-          onClick={() => setIsComposing(true)}
+          onClick={() => {
+            setComposeMode("new");
+            setIsComposing(true);
+          }}
         >
           <PenSquare className="h-4 w-4" />
           Compose

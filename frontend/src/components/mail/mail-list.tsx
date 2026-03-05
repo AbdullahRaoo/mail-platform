@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useMail } from "@/context/mail-context";
-import { Avatar, Badge, Spinner, EmptyState } from "@/components/ui";
+import { Avatar, Badge, Spinner, EmptyState, Button } from "@/components/ui";
 import { displayName } from "@/lib/jmap/email";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -19,6 +19,9 @@ export function MailList() {
     selectedEmail,
     selectEmail,
     activeMailboxId,
+    hasMoreEmails,
+    loadMoreEmails,
+    totalEmails,
   } = useMail();
 
   if (emailsLoading) {
@@ -112,6 +115,24 @@ export function MailList() {
           </button>
         );
       })}
+
+      {/* Load more */}
+      {hasMoreEmails && (
+        <div className="flex items-center justify-center py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={loadMoreEmails}
+            disabled={emailsLoading}
+          >
+            {emailsLoading ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              `Load more (${emails.length} of ${totalEmails})`
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

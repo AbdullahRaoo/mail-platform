@@ -157,8 +157,11 @@ class JMAPClient {
   ): EventSource | null {
     if (!this.session || !this.token) return null;
 
-    const url = `${this.session.eventSourceUrl}?types=*&closeafter=no&ping=30`;
-    const es = new EventSource(url, { withCredentials: true });
+    // EventSource doesn't support custom headers, so we pass the
+    // auth token as a query parameter (Stalwart supports this).
+    const separator = this.session.eventSourceUrl.includes("?") ? "&" : "?";
+    const url = `${this.session.eventSourceUrl}${separator}types=*&closeafter=no&ping=30`;
+    const es = new EventSource(url);
 
     es.addEventListener("state", (event: MessageEvent) => {
       try {

@@ -45,6 +45,7 @@ export function MailViewer() {
     clearSelectedEmail,
     setIsComposing,
     setReplyTo,
+    setComposeMode: useMail_setComposeMode,
     mailboxes,
     loadEmails,
     activeMailboxId,
@@ -122,6 +123,19 @@ export function MailViewer() {
 
   const handleReply = () => {
     setReplyTo(email);
+    useMail_setComposeMode("reply");
+    setIsComposing(true);
+  };
+
+  const handleReplyAll = () => {
+    setReplyTo(email);
+    useMail_setComposeMode("reply-all");
+    setIsComposing(true);
+  };
+
+  const handleForward = () => {
+    setReplyTo(email);
+    useMail_setComposeMode("forward");
     setIsComposing(true);
   };
 
@@ -169,12 +183,12 @@ export function MailViewer() {
           </Button>
         </Tooltip>
         <Tooltip content="Reply All">
-          <Button variant="ghost" size="icon" onClick={handleReply}>
+          <Button variant="ghost" size="icon" onClick={handleReplyAll}>
             <ReplyAll className="h-4 w-4" />
           </Button>
         </Tooltip>
         <Tooltip content="Forward">
-          <Button variant="ghost" size="icon" onClick={handleReply}>
+          <Button variant="ghost" size="icon" onClick={handleForward}>
             <Forward className="h-4 w-4" />
           </Button>
         </Tooltip>

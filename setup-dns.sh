@@ -45,6 +45,11 @@ cat <<EOF
    Host: autoconfig
    Value: ${VPS_IP}
 
+5b. A Record — Autodiscover (Outlook)
+   Type: A
+   Host: autodiscover
+   Value: ${VPS_IP}
+
 6. A Record — MTA-STS
    Type: A
    Host: mta-sts
@@ -80,6 +85,23 @@ cat <<EOF
     Type: TXT
     Host: _smtp._tls
     Value: v=TLSRPTv1; rua=mailto:postmaster@${DOMAIN}
+
+──── SRV Records (client autodiscovery) ────
+
+12. SRV Record — SMTP Submission
+    Type: SRV
+    Host: _submission._tcp
+    Value: 0 1 587 mail.${DOMAIN}
+
+13. SRV Record — IMAPS
+    Type: SRV
+    Host: _imaps._tcp
+    Value: 0 1 993 mail.${DOMAIN}
+
+14. SRV Record — JMAP
+    Type: SRV
+    Host: _jmap._tcp
+    Value: 0 1 443 mail.${DOMAIN}
 
 ──── OPTIONAL: DANE (if DNSSEC available) ────
 

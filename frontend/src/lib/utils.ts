@@ -22,22 +22,12 @@ export function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export function generateAvatarColor(email: string): string {
-  const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-orange-500",
-    "bg-pink-500",
-    "bg-teal-500",
-    "bg-indigo-500",
-    "bg-rose-500",
-    "bg-cyan-500",
-    "bg-amber-500",
-  ];
+export function generateAvatarColor(seed: string): string {
+  // Generate a deterministic HSL color from the input string
   let hash = 0;
-  for (let i = 0; i < email.length; i++) {
-    hash = email.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return colors[Math.abs(hash) % colors.length];
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 65%, 45%)`;
 }

@@ -18,7 +18,7 @@ services:
       # HTTP/JMAP — localhost only, accessed via Caddy reverse proxy
       - "127.0.0.1:18080:8080"
     volumes:
-      - stalwart-data:/opt/stalwart-mail
+      - ./stalwart-data:/opt/stalwart-mail
     environment:
       - STALWART_HOSTNAME=${MAIL_HOSTNAME:-mail.magicqc.com}
     networks:
@@ -42,6 +42,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_JMAP_URL=${NEXT_PUBLIC_JMAP_URL:-https://mail.magicqc.com}
     container_name: magicqc-webmail
     restart: unless-stopped
     ports:
@@ -59,10 +61,6 @@ services:
     dns:
       - 8.8.8.8
       - 1.1.1.1
-
-volumes:
-  stalwart-data:
-    driver: local
 
 networks:
   mail-network:

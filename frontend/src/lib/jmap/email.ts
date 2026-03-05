@@ -212,14 +212,13 @@ export async function sendEmail(compose: ComposeEmail): Promise<string> {
   const accountId = jmapClient.getAccountId();
 
   // Step 1: Create the email as a draft
+  // Use identity for 'from' — the server also validates this
   const emailBody: Record<string, unknown> = {
-    from: [{ name: null, email: compose.to[0]?.email }], // Will be set by identity
     to: compose.to,
     cc: compose.cc.length > 0 ? compose.cc : undefined,
     bcc: compose.bcc.length > 0 ? compose.bcc : undefined,
     subject: compose.subject,
-    keywords: { $seen: true, $draft: true },
-    mailboxIds: {}, // Will be set below
+    keywords: { $seen: true },
     bodyValues: {
       body: {
         value: compose.htmlBody || compose.textBody,
@@ -243,6 +242,9 @@ export async function sendEmail(compose: ComposeEmail): Promise<string> {
   }
 
   // Step 2: Create email + submission in a single request
+  // Stalwart auto-sets the From header from the identity and assigns
+  // the draft to the correct mailbox when using EmailSubmission/set
+  // with onSuccessUpdateEmail — so we omit mailboxIds intentionally.
   const response = await jmapClient.request([
     [
       "Email/set",
